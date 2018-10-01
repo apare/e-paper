@@ -1,18 +1,10 @@
-// Raspberry Pi v3 physical pin numbers
-export const PINS = {
-  RST: 11,
-  DC: 22,
-  BUSY: 18,
-  CS: 24
-};
-
 export enum EPD_MODES {
   FULL,
   PARTIAL
 }
 
-export const SPIDEV_MAXPATH = 4096;
-export const SPIDEV_MAXSPEED = 2000000;
+export const SPI_MAX_PATH = 4096;
+export const SPI_MAX_SPEED = 2000000;
 
 export const COMMANDS = {
   DUMMY_LINE: [0x3a, 0x1a],

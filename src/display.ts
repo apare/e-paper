@@ -1,214 +1,80 @@
-interface IImage {
-  xSize: number;
-  ySize: number;
-  xySize: [number, number];
-  view: Buffer[];
-}
+import Canvas = require("canvas");
 
-export function toUInt8(value: number) {
-  return parseInt(value.toString(16), 16);
-}
+export default class Display {
+  constructor(
+    public width: number,
+    public height: number,
+    public channels: string[] = ["000000"]
+  ) {}
 
-export function shrinkBuffer(buf: Buffer, reverse = false) {
-  if (buf.length % 8 !== 0) {
-    throw new Error("buffer length must be multiple of 8 to shrink");
+  public getCanvas() {
+    return new Canvas(this.width, this.height);
   }
-  const newBuf = Buffer.allocUnsafe(buf.length / 8);
-  for (
-    let i = reverse ? buf.length - 1 : 0, j = 0;
-    reverse ? i > 0 : i < buf.length;
-    j++
-  ) {
-    let byte = 0;
-    for (let k = 128; k >= 1; k /= 2, i += reverse ? -1 : 1) {
-      if (buf[i]) {
-        byte |= k;
-      }
+
+  public draw(canvas: HTMLCanvasElement, x: number = 0, y: number = 0) {
+    if (x % 8 !== 0) {
+      throw new Error("x must be multiple of 8 to shrink");
     }
-    newBuf.writeUInt8(toUInt8(byte), j);
-  }
-  return newBuf;
-}
-
-export function expandBuffer(buf: Buffer) {
-  const newBuf = Buffer.allocUnsafe(buf.length * 8);
-  for (let i = 0, j = 0; i < buf.length; i++) {
-    let byte = buf[i];
-    for (let k = 7; k > -1; k--, j++) {
-      newBuf.writeUInt8(!!(byte & (1 << k)) ? 0xff : 0x00, j);
+    if (y % 8 !== 0) {
+      throw new Error("y must be multiple of 8 to shrink");
     }
-  }
-  return newBuf;
-}
-
-export function getImageRAM(image: IImage) {
-  if (image.xSize % 8 !== 0) {
-    throw new Error("image width must be multiple of 8");
-  }
-  const newBuf = Buffer.allocUnsafe((image.xSize / 8) * image.ySize);
-  for (let y = 0; y < image.ySize; y++) {
-    let row = new Uint8Array(shrinkBuffer(image.view[y], true));
-    for (let x = 0; x < row.length; x++) {
-      newBuf.writeUInt8(row[x], y * (image.xSize / 8) + x);
-    }
-  }
-  return newBuf;
-}
-
-export function createImage(xSize: number, ySize: number, data = 0xff): IImage {
-  const view = [];
-  for (let y = 0; y < ySize; y++) {
-    view.push(Buffer.alloc(xSize, data));
-  }
-  return {
-    xSize: xSize,
-    ySize: ySize,
-    xySize: [xSize, ySize],
-    view: view
-  };
-}
-
-export function cropImage(
-  image: IImage,
-  y0 = true,
-  y1 = true,
-  x0 = true,
-  x1 = true
-) {
-  const cropY = [-1, -1];
-  const cropX = [-1, -1];
-  let i = 0;
-  for (let y = 0; y < image.ySize; y++) {
-    for (let x = 0; x < image.xSize; x++) {
-      i = image.view[y].readUInt8(x);
-      if (i === 255) {
-        continue;
-      }
-      if (y0 && (cropY[0] < 0 || y < cropY[0])) {
-        cropY[0] = y;
-      }
-      if (y1 && y > cropY[1]) {
-        cropY[1] = y;
-      }
-      if (x0 && (cropX[0] < 0 || x < cropX[0])) {
-        cropX[0] = x;
-      }
-      if (x1 && x > cropX[1]) {
-        cropX[1] = x;
-      }
-    }
-  }
-  // crop top side of image
-  if (y0 && cropY[0] > 0) {
-    image.view.splice(0, cropY[0]);
-  }
-  // crop bottom side of view
-  if (y1 && (++cropY[1] > 0 && cropY[1] < image.ySize)) {
-    image.view.splice(0 - (image.ySize - cropY[1]));
-  }
-  // update Y size of image
-  image.ySize = image.view.length;
-
-  // reset left crop if none
-  if (cropX[0] < 1) {
-    cropX[0] = 0;
-  }
-  // reset right crop if none
-  if (!++cropX[1]) {
-    cropX[1] = image.xSize;
-  }
-  // crop left and right sides of image
-  if (cropX[0] > 0 || cropX[1] < image.xSize) {
-    for (let y = 0; y < image.ySize; y++) {
-      image.view[y] = Buffer.alloc(
-        cropX[1] - cropX[0],
-        image.view[y].slice(cropX[0], cropX[1])
-      );
-    }
-  }
-  // update X size of image
-  image.xSize = image.view[0].length;
-}
-
-export function alignImage(image: IImage, xSize: number, align = "left") {
-  let xPad = 8 - (image.xSize % 8);
-  if (align === "center") {
-    xPad = Math.round((xSize - image.xSize) / 2) % 8;
-    if (xPad === 0) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
       return;
     }
-    xPad *= 2;
-  } else if (image.xSize % 8 === 0) {
-    return;
-  }
-  for (let y = 0; y < image.ySize; y++) {
-    const newBuf = Buffer.alloc(image.xSize + xPad, 0xff);
-    let x = 0;
-    if (align === "center") {
-      x = Math.floor(xPad / 2);
-    } else if (align === "right") {
-      x = xPad;
-    }
-    for (let i = 0; i < image.xSize; i++, x++) {
-      newBuf.writeUInt8(image.view[y][i], x);
-    }
-    image.view[y] = newBuf;
-  }
-  image.xSize = image.xSize + xPad;
-}
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
 
-export function invertImage(image: IImage) {
-  for (let y = 0; y < image.ySize; y++) {
-    for (let x = 0; x < image.xSize; x++) {
-      image.view[y].writeUInt8(0xff - image.view[y].readUInt8(x), x);
-    }
-  }
-}
+    const channelsData: number[][] = this.channels.map(() => []);
+    let currentChannelsData: number[] = this.channels.map(() => 0);
 
-export function blitImage(
-  src: IImage,
-  sX: number,
-  sY: number,
-  xSize: number,
-  ySize: number,
-  dest: IImage,
-  dX: number,
-  dY: number,
-  px: number = null
-) {
-  if (xSize < 1 || ySize < 1) {
-    return;
-  }
-  if (sX < 0 || sX + xSize > src.xSize) {
-    throw new Error("X is out of source bounds");
-  }
-  if (sY < 0 || sY + ySize > src.ySize) {
-    throw new Error("Y is out of source bounds");
-  }
-  if (dX < 0 || dX + xSize > dest.xSize) {
-    throw new Error("X is out of destination bounds");
-  }
-  if (dY < 0 || dY + ySize > dest.ySize) {
-    throw new Error("Y is out of destination bounds");
-  }
-  for (let y = dY; y < dY + ySize; y++) {
-    for (let x = dX; x < dX + xSize; x++) {
-      let byte = src.view[sY + (y - dY)][sX + (x - dX)];
-      if (px === null || px === byte) {
-        dest.view[y].writeUInt8(byte, x);
+    const nbPixel = data.length / 4;
+
+    for (var i = 0; i < nbPixel; i++) {
+      const index = i * 4;
+      var red = data[index];
+      var green = data[index + 1];
+      var blue = data[index + 2];
+
+      var colorCode = red.toString(16) + green.toString(16) + blue.toString(16);
+      this.channels.forEach((channel, channelNo) => {
+        if (colorCode == channel) {
+          currentChannelsData[channelNo] |= 1 << (7 - (i % 8));
+        }
+      });
+      if (i % 8 == 7) {
+        currentChannelsData.forEach((value, channelNo) => {
+          channelsData[channelNo].push(value);
+        });
+        currentChannelsData = this.channels.map(() => 0);
       }
     }
-  }
-}
 
-export function logImage(image: IImage) {
-  image.view.forEach(row => {
-    console.log(
-      row
-        .toString("hex")
-        .replace(/00/g, "■")
-        .replace(/ff/g, "□")
-    );
-  });
-  console.log(`image ${image.xSize}×${image.ySize} (${image.view[0].length})`);
+    this.drawChannels(channelsData, x, y, canvas.width, canvas.height);
+  }
+
+  protected drawChannels(
+    channels: number[][],
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
+    channels.forEach((channel, channelNo) => {
+      console.log(`Draw Channel ${channelNo}`);
+      console.log(`Offset: ${x},${y}`);
+      console.log(`Size: ${width},${height}`);
+      let log = "";
+      channel.forEach((data, i) => {
+        log += data
+          .toString(2)
+          .replace(/1/g, "■")
+          .replace(/0/g, "□");
+        if ((i * 8) % width == width - 1) {
+          console.log(log);
+          log = "";
+        }
+      });
+    });
+  }
 }

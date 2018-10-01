@@ -1,10 +1,12 @@
 import EPD from "./epd";
+import { sleep } from "./utils";
 
 export default class Epd2in7b extends EPD {
-  private width = 176;
-  private height = 264;
+  constructor() {
+    super(176, 264);
+  }
 
-  async init() {
+  protected async init() {
     await super.init();
 
     await this.writeCommand(Command.POWER_ON);
@@ -64,7 +66,7 @@ export default class Epd2in7b extends EPD {
     await this.writeData(0x00);
   }
 
-  async setLut(): Promise<void> {
+  private async setLut(): Promise<void> {
     await this.writeCommand(Command.LUT_FOR_VCOM); // vcom
     await Promise.all(lut_vcom_dc.map(data => this.writeData(data)));
 
@@ -81,7 +83,25 @@ export default class Epd2in7b extends EPD {
     await Promise.all(lut_wb.map(data => this.writeData(data)));
   }
 
-  async displayFrame(black: Buffer, red: Buffer) {
+  protected async drawChannels(
+    channels: number[][],
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
+    const [black, red] = channels;
+    if (x == 0 && y == 0 && width == this.width && height == this.height) {
+      await this.displayFrame(black, red);
+    } else {
+      throw "Partial Update is not enabled";
+    }
+  }
+
+  private async displayFrame(
+    black: Buffer | Array<number>,
+    red: Buffer | Array<number>
+  ) {
     await this.writeCommand(Command.TCON_RESOLUTION);
     await this.writeData(this.width >> 8);
     await this.writeData(this.width & 0xff); //176
@@ -90,19 +110,19 @@ export default class Epd2in7b extends EPD {
 
     if (black != null) {
       await this.writeCommand(Command.DATA_START_TRANSMISSION_1);
-      await this.sleep(2);
+      await sleep(2);
       for (var i = 0; i < black.length; i++) {
         await this.writeData(black[i]);
       }
-      await this.sleep(2);
+      await sleep(2);
     }
     if (red != null) {
       await this.writeCommand(Command.DATA_START_TRANSMISSION_1);
-      await this.sleep(2);
+      await sleep(2);
       for (var i = 0; i < black.length; i++) {
         await this.writeData(red[i]);
       }
-      await this.sleep(2);
+      await sleep(2);
     }
     await this.writeCommand(Command.DISPLAY_REFRESH);
     await this.whileBusy();

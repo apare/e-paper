@@ -5,7 +5,9 @@
   "main": "index.js",
   "dependencies": {
     "@types/node": "^10.11.3",
-    "rpi-gpio": "^1.0.0"
+    "canvas": "^1.6.12",
+    "rpi-gpio": "^1.0.0",
+    "spi": "^0.2.0"
   },
   "devDependencies": {},
   "scripts": {
