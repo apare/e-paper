@@ -1,7 +1,10 @@
-import * as GPIO from "./lib/gpio";
+import * as GPIO from "rpi-gpio";
 import Spi from "./lib/spi";
 import Display from "./display";
 import { sleep } from "./utils";
+
+const LOW = false;
+const HIGH = true;
 
 export const PINS = {
   RST: 11,
@@ -26,11 +29,11 @@ export default class EPD extends Display {
 
   protected async init() {
     try {
-      GPIO.setModeBCM();
-      await GPIO.setDirOut(PINS.RST);
-      await GPIO.setDirOut(PINS.DC);
-      await GPIO.setDirOut(PINS.CS);
-      await GPIO.setDirIn(PINS.BUSY);
+      GPIO.setMode(GPIO.MODE_BCM);
+      await GPIO.promise.setup(PINS.RST, GPIO.DIR_OUT);
+      await GPIO.promise.setup(PINS.DC, GPIO.DIR_OUT);
+      await GPIO.promise.setup(PINS.CS, GPIO.DIR_OUT);
+      await GPIO.promise.setup(PINS.BUSY, GPIO.DIR_IN);
 
       this.spi = new Spi();
       await this.spi.open();
@@ -42,12 +45,12 @@ export default class EPD extends Display {
 
   private async exit() {
     await this.spi.close();
-    await GPIO.destroy();
+    await GPIO.promise.destroy();
   }
 
   public async whileBusy(timeout: number = 5000) {
     for (let i = 0; i < timeout / 10; i++) {
-      let busy = await GPIO.input(PINS.BUSY);
+      let busy = await GPIO.promise.read(PINS.BUSY);
       if (busy === false) {
         return true;
       }
@@ -57,12 +60,12 @@ export default class EPD extends Display {
   }
 
   protected async writeCommand(command: number) {
-    await GPIO.output(PINS.DC, GPIO.LOW);
+    await GPIO.promise.write(PINS.DC, LOW);
     await this.spi.write([command]);
   }
 
   protected async writeData(data: number) {
-    await GPIO.output(PINS.DC, GPIO.HIGH);
+    await GPIO.promise.write(PINS.DC, HIGH);
     this.spi.write([data]);
   }
 }
