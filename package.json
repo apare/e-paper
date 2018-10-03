@@ -1,0 +1,26 @@
+{
+  "name": "e-paper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@types/node": "^10.11.3",
+    "canvas": "^1.6.12",
+    "rpi-gpio": "^1.0.0",
+    "spi": "^0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apare/e-paper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/apare/e-paper/issues"
+  },
+  "homepage": "https://github.com/apare/e-paper#readme"
+}
