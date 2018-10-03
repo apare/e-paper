@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "<= 8"
+  },
   "dependencies": {
     "@types/node": "^10.11.3",
     "canvas": "^1.6.12",

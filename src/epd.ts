@@ -37,7 +37,6 @@ export default class EPD extends Display {
       this.spi = new Spi();
       await this.spi.open();
     } catch (err) {
-
       await this.exit();
       throw err;
     }
@@ -60,13 +59,15 @@ export default class EPD extends Display {
   }
 
   protected async writeCommand(command: number) {
+    console.log("writeCommand", command);
     await GPIO.promise.write(PINS.DC, LOW);
     await this.spi.write([command]);
   }
 
   protected async writeData(data: number) {
+    console.log("writeData", data);
     await GPIO.promise.write(PINS.DC, HIGH);
-    this.spi.write([data]);
+    await this.spi.write([data]);
   }
 }
 
