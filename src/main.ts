@@ -14,7 +14,7 @@ async function main() {
     ctx.lineTo(50, 50);
   }
 
-  display.draw(canvas);
+  await display.draw(canvas);
 }
 
 main()
