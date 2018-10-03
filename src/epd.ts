@@ -24,10 +24,9 @@ export default class EPD extends Display {
     };
     process.on("SIGINT", terminate);
     process.on("SIGTERM", terminate);
-    this.init();
   }
 
-  protected async init() {
+  public async init() {
     try {
       GPIO.setMode(GPIO.MODE_BCM);
       await GPIO.promise.setup(PINS.RST, GPIO.DIR_OUT);
@@ -38,6 +37,7 @@ export default class EPD extends Display {
       this.spi = new Spi();
       await this.spi.open();
     } catch (err) {
+
       await this.exit();
       throw err;
     }

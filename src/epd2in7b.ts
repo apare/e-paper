@@ -6,7 +6,7 @@ export default class Epd2in7b extends EPD {
     super(176, 264);
   }
 
-  protected async init() {
+  public async init() {
     await super.init();
 
     await this.writeCommand(Command.POWER_ON);
