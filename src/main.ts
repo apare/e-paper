@@ -1,7 +1,8 @@
 import Display from "./epd2in7b";
 
+var display = new Display();
+
 async function main() {
-  var display = new Display();
   await display.init();
 
   const canvas = display.getCanvas();
@@ -16,6 +17,8 @@ async function main() {
   display.draw(canvas);
 }
 
-main().catch(e => {
-  console.error(e);
-});
+main()
+  .then(e => display.exit())
+  .catch(e => {
+    console.error(e);
+  });

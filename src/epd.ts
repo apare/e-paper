@@ -42,7 +42,7 @@ export default class EPD extends Display {
     }
   }
 
-  private async exit() {
+  public async exit() {
     await this.spi.close();
     await GPIO.promise.destroy();
   }
