@@ -16,8 +16,8 @@ export const PINS = {
 export default class EPD extends Display {
   private spi: Spi;
 
-  constructor(width: number, height: number) {
-    super(width, height);
+  constructor(width: number, height: number, channels: string[]) {
+    super(width, height, channels);
     const terminate = async () => {
       await this.exit();
       process.exit(0);

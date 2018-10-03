@@ -3,7 +3,7 @@ import { sleep } from "./utils";
 
 export default class Epd2in7b extends EPD {
   constructor() {
-    super(176, 264);
+    super(176, 264, ["000000", "ff0000"]);
   }
 
   public async init() {
