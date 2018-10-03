@@ -37,7 +37,6 @@ export default class EPD extends Display {
       this.spi = new Spi();
       await this.spi.open();
     } catch (err) {
-
       await this.exit();
       throw err;
     }
@@ -68,16 +67,4 @@ export default class EPD extends Display {
     await GPIO.promise.write(PINS.DC, HIGH);
     this.spi.write([data]);
   }
-}
-
-interface Device {
-  width: number;
-  height: number;
-  drawChannels(
-    channels: number[][],
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ): Promise<void>;
 }
