@@ -1,14 +1,12 @@
 import * as SPI from "spi";
 
-import { SPI_MAX_PATH, SPI_MAX_SPEED } from "./constants";
-
 export default class Spi {
   private spi: SPI.Spi;
 
   constructor(device = "/dev/spidev0.0", mode = SPI.MODE["MODE_0"]) {
     this.spi = new SPI.Spi(device, {
       mode,
-      maxSpeed: SPI_MAX_SPEED
+      maxSpeed: 2000000
     });
   }
 
@@ -64,7 +62,7 @@ export default class Spi {
     }
     data = [...data];
     while (data.length > 0) {
-      await this.unsafeWrite(Buffer.from(data.splice(0, SPI_MAX_PATH)));
+      await this.unsafeWrite(Buffer.from(data.splice(0, 4096)));
     }
   }
 }

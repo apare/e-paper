@@ -1,5 +1,5 @@
-import * as GPIO from "./gpio";
-import SPI from "./spi";
+import * as GPIO from "./lib/gpio";
+import Spi from "./lib/spi";
 import Display from "./display";
 import { sleep } from "./utils";
 
@@ -11,7 +11,7 @@ export const PINS = {
 };
 
 export default class EPD extends Display {
-  private spi: SPI;
+  private spi: Spi;
 
   constructor(width: number, height: number) {
     super(width, height);
@@ -32,7 +32,7 @@ export default class EPD extends Display {
       await GPIO.setDirOut(PINS.CS);
       await GPIO.setDirIn(PINS.BUSY);
 
-      this.spi = new SPI();
+      this.spi = new Spi();
       await this.spi.open();
     } catch (err) {
       await this.exit();

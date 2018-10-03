@@ -18,13 +18,13 @@ declare module "spi" {
   }
 
   export interface IOption {
-    mode: MODE;
-    chipSelect: CS;
-    size: number;
-    bitOrder: ORDER;
-    maxSpeed: number;
-    halfDuplex: boolean;
-    loopback: boolean;
+    mode?: MODE;
+    chipSelect?: CS;
+    size?: number;
+    bitOrder?: ORDER;
+    maxSpeed?: number;
+    halfDuplex?: boolean;
+    loopback?: boolean;
   }
 
   export class Spi {
