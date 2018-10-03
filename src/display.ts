@@ -50,10 +50,10 @@ export default class Display {
       }
     }
 
-    this.drawChannels(channelsData, x, y, canvas.width, canvas.height);
+    return this.drawChannels(channelsData, x, y, canvas.width, canvas.height);
   }
 
-  protected drawChannels(
+  protected async drawChannels(
     channels: number[][],
     x: number,
     y: number,
