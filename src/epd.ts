@@ -70,15 +70,3 @@ export default class EPD extends Display {
     await this.spi.write([data]);
   }
 }
-
-interface Device {
-  width: number;
-  height: number;
-  drawChannels(
-    channels: number[][],
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ): Promise<void>;
-}

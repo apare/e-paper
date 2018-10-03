@@ -7,8 +7,10 @@
     "node": "<= 8"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.116",
     "@types/node": "^10.11.3",
     "canvas": "^1.6.12",
+    "lodash": "^4.17.11",
     "rpi-gpio": "^1.0.0",
     "spi": "^0.2.0"
   },
