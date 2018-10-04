@@ -24,14 +24,11 @@
  # THE SOFTWARE.
  #
 
-import logging
 import epdif
 import Image
 import ImageDraw
 import ImageFont
 import RPi.GPIO as GPIO
-
-logging.basicConfig(level=logging.DEBUG)
 
 # Display resolution
 EPD_WIDTH       = 176
@@ -156,14 +153,14 @@ class EPD:
         epdif.epd_delay_ms(delaytime)
 
     def send_command(self, command):
-        logging.debug("writeCommand %s", command);
+        print("writeCommand %s", command);
         self.digital_write(self.dc_pin, GPIO.LOW)
         # the parameter type is list but not int
         # so use [command] instead of command
         epdif.spi_transfer([command])
 
     def send_data(self, data):
-        logging.debug("writeData %s", data);
+        print("writeData %s", data);
         self.digital_write(self.dc_pin, GPIO.HIGH)
         # the parameter type is list but not int
         # so use [data] instead of data
