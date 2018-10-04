@@ -3,7 +3,6 @@ import Image
 import ImageDraw
 import ImageFont
 import os
-import requests
 
 COLORED = 1
 UNCOLORED = 0
