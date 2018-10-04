@@ -24,7 +24,7 @@ def main():
     epd.draw_filled_rectangle(frame_red, 0, 76, 176, 96, COLORED)
     epd.draw_filled_circle(frame_red, 120, 220, 30, COLORED)
 
-    draw strings to the buffer
+    # draw strings to the buffer
     font = ImageFont.truetype(
        '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 18)
     epd.draw_string_at(frame_black, 4, 50, "e-Paper Demo", font, COLORED)
