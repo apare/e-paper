@@ -17,18 +17,18 @@ def main():
 
     # For simplicity, the arguments are explicit numerical coordinates
     epd.draw_rectangle(frame_black, 10, 130, 50, 180, COLORED)
-    # epd.draw_line(frame_black, 10, 130, 50, 180, COLORED)
-    # epd.draw_line(frame_black, 50, 130, 10, 180, COLORED)
-    # epd.draw_circle(frame_black, 120, 150, 30, COLORED)
-    # epd.draw_filled_rectangle(frame_red, 10, 200, 50, 250, COLORED)
-    # epd.draw_filled_rectangle(frame_red, 0, 76, 176, 96, COLORED)
-    # epd.draw_filled_circle(frame_red, 120, 220, 30, COLORED)
+    epd.draw_line(frame_black, 10, 130, 50, 180, COLORED)
+    epd.draw_line(frame_black, 50, 130, 10, 180, COLORED)
+    epd.draw_circle(frame_black, 120, 150, 30, COLORED)
+    epd.draw_filled_rectangle(frame_red, 10, 200, 50, 250, COLORED)
+    epd.draw_filled_rectangle(frame_red, 0, 76, 176, 96, COLORED)
+    epd.draw_filled_circle(frame_red, 120, 220, 30, COLORED)
 
-    # draw strings to the buffer
-    # font = ImageFont.truetype(
-    #    '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 18)
-    # epd.draw_string_at(frame_black, 4, 50, "e-Paper Demo", font, COLORED)
-    # epd.draw_string_at(frame_red, 18, 80, "Hello world!", font, UNCOLORED)
+    draw strings to the buffer
+    font = ImageFont.truetype(
+       '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 18)
+    epd.draw_string_at(frame_black, 4, 50, "e-Paper Demo", font, COLORED)
+    epd.draw_string_at(frame_red, 18, 80, "Hello world!", font, UNCOLORED)
     # display the frames
     epd.display_frame(frame_black, frame_red)
 
