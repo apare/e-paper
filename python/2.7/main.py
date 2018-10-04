@@ -3,7 +3,6 @@ import Image
 import ImageDraw
 import ImageFont
 import os
-import requests
 
 def main():
     epd = epd2in7b.EPD()
