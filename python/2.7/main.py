@@ -16,7 +16,7 @@ def main():
     frame_red = [0] * (epd.width * epd.height / 8)
 
     # For simplicity, the arguments are explicit numerical coordinates
-    # epd.draw_rectangle(frame_black, 10, 130, 50, 180, COLORED)
+    epd.draw_rectangle(frame_black, 10, 130, 50, 180, COLORED)
     # epd.draw_line(frame_black, 10, 130, 50, 180, COLORED)
     # epd.draw_line(frame_black, 50, 130, 10, 180, COLORED)
     # epd.draw_circle(frame_black, 120, 150, 30, COLORED)
