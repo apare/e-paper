@@ -2,10 +2,9 @@ import epd2in7b
 import Image
 import ImageDraw
 import ImageFont
-import os
-
 COLORED = 1
 UNCOLORED = 0
+
 
 def main():
     epd = epd2in7b.EPD()
@@ -26,19 +25,15 @@ def main():
 
     # draw strings to the buffer
     font = ImageFont.truetype(
-       '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 18)
+        '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 18)
     epd.draw_string_at(frame_black, 4, 50, "e-Paper Demo", font, COLORED)
     epd.draw_string_at(frame_red, 18, 80, "Hello world!", font, UNCOLORED)
     # display the frames
     epd.display_frame(frame_black, frame_red)
 
-    # display images
-    # frame_black = epd.get_frame_buffer(Image.open('black.bmp'))
-    # frame_red = epd.get_frame_buffer(Image.open('red.bmp'))
-    # epd.display_frame(frame_black, None)
-
     # You can get frame buffer from an image or import the buffer directly:
-    # epd.display_frame(imagedata.IMAGE_BLACK, imagedata.IMAGE_RED)
+    #epd.display_frame(imagedata.IMAGE_BLACK, imagedata.IMAGE_RED)
+
 
 if __name__ == '__main__':
     main()
