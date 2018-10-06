@@ -1,89 +1,86 @@
 import EPD from "./epd";
-import { sleep } from "./utils";
 
 export default class Epd2in7b extends EPD {
   constructor() {
     super(176, 264, ["000000", "ff0000"]);
+
+    this.reset();
+
+    this.sendCommand(Command.POWER_ON);
+    this.waitUntilIdle();
+
+    this.sendCommand(Command.PANEL_SETTING);
+    this.sendData(0xaf); //KW-BF   KWR-AF    BWROTP 0f
+
+    this.sendCommand(Command.PLL_CONTROL);
+    this.sendData(0x3a); //3A 100HZ   29 150Hz 39 200HZ    31 171HZ
+
+    this.sendCommand(Command.POWER_SETTING);
+    this.sendData(0x03); // VDS_EN, VDG_EN
+    this.sendData(0x00); // VCOM_HV, VGHL_LV[1], VGHL_LV[0]
+    this.sendData(0x2b); // VDH
+    this.sendData(0x2b); // VDL
+    this.sendData(0x09); // VDHR
+
+    this.sendCommand(Command.BOOSTER_SOFT_START);
+    this.sendData(0x07);
+    this.sendData(0x07);
+    this.sendData(0x17);
+
+    // Power optimization
+    this.sendCommand(0xf8);
+    this.sendData(0x60);
+    this.sendData(0xa5);
+
+    // Power optimization
+    this.sendCommand(0xf8);
+    this.sendData(0x89);
+    this.sendData(0xa5);
+
+    // Power optimization
+    this.sendCommand(0xf8);
+    this.sendData(0x90);
+    this.sendData(0x00);
+
+    // Power optimization
+    this.sendCommand(0xf8);
+    this.sendData(0x93);
+    this.sendData(0x2a);
+
+    // Power optimization
+    this.sendCommand(0xf8);
+    this.sendData(0x73);
+    this.sendData(0x41);
+
+    this.sendCommand(Command.VCM_DC_SETTING_REGISTER);
+    this.sendData(0x12);
+    this.sendCommand(Command.VCOM_AND_DATA_INTERVAL_SETTING);
+    this.sendData(0x87); // define by OTP
+
+    this.setLut();
+
+    this.sendCommand(Command.PARTIAL_DISPLAY_REFRESH);
+    this.sendData(0x00);
   }
 
-  public async init() {
-    await super.init();
+  private setLut() {
+    this.sendCommand(Command.LUT_FOR_VCOM); // vcom
+    this.sendDataArray(lut_vcom_dc);
 
-    await this.writeCommand(Command.POWER_ON);
-    await this.whileBusy();
+    this.sendCommand(Command.LUT_WHITE_TO_WHITE); // ww --
+    this.sendDataArray(lut_ww);
 
-    await this.writeCommand(Command.PANEL_SETTING);
-    await this.writeData(0xaf); //KW-BF   KWR-AF    BWROTP 0f
+    this.sendCommand(Command.LUT_BLACK_TO_WHITE); // bw r
+    this.sendDataArray(lut_bw);
 
-    await this.writeCommand(Command.PLL_CONTROL);
-    await this.writeData(0x3a); //3A 100HZ   29 150Hz 39 200HZ    31 171HZ
+    this.sendCommand(Command.LUT_WHITE_TO_BLACK); // wb w
+    this.sendDataArray(lut_bb);
 
-    await this.writeCommand(Command.POWER_SETTING);
-    await this.writeData(0x03); // VDS_EN, VDG_EN
-    await this.writeData(0x00); // VCOM_HV, VGHL_LV[1], VGHL_LV[0]
-    await this.writeData(0x2b); // VDH
-    await this.writeData(0x2b); // VDL
-    await this.writeData(0x09); // VDHR
-
-    await this.writeCommand(Command.BOOSTER_SOFT_START);
-    await this.writeData(0x07);
-    await this.writeData(0x07);
-    await this.writeData(0x17);
-
-    // Power optimization
-    await this.writeCommand(0xf8);
-    await this.writeData(0x60);
-    await this.writeData(0xa5);
-
-    // Power optimization
-    await this.writeCommand(0xf8);
-    await this.writeData(0x89);
-    await this.writeData(0xa5);
-
-    // Power optimization
-    await this.writeCommand(0xf8);
-    await this.writeData(0x90);
-    await this.writeData(0x00);
-
-    // Power optimization
-    await this.writeCommand(0xf8);
-    await this.writeData(0x93);
-    await this.writeData(0x2a);
-
-    // Power optimization
-    await this.writeCommand(0xf8);
-    await this.writeData(0x73);
-    await this.writeData(0x41);
-
-    await this.writeCommand(Command.VCM_DC_SETTING_REGISTER);
-    await this.writeData(0x12);
-    await this.writeCommand(Command.VCOM_AND_DATA_INTERVAL_SETTING);
-    await this.writeData(0x87); // define by OTP
-
-    await this.setLut();
-
-    await this.writeCommand(Command.PARTIAL_DISPLAY_REFRESH);
-    await this.writeData(0x00);
+    this.sendCommand(Command.LUT_BLACK_TO_BLACK); // bb b
+    this.sendDataArray(lut_wb);
   }
 
-  private async setLut(): Promise<void> {
-    await this.writeCommand(Command.LUT_FOR_VCOM); // vcom
-    await Promise.all(lut_vcom_dc.map(data => this.writeData(data)));
-
-    await this.writeCommand(Command.LUT_WHITE_TO_WHITE); // ww --
-    await Promise.all(lut_ww.map(data => this.writeData(data)));
-
-    await this.writeCommand(Command.LUT_BLACK_TO_WHITE); // bw r
-    await Promise.all(lut_bw.map(data => this.writeData(data)));
-
-    await this.writeCommand(Command.LUT_WHITE_TO_BLACK); // wb w
-    await Promise.all(lut_bb.map(data => this.writeData(data)));
-
-    await this.writeCommand(Command.LUT_BLACK_TO_BLACK); // bb b
-    await Promise.all(lut_wb.map(data => this.writeData(data)));
-  }
-
-  protected async drawChannels(
+  protected drawChannels(
     channels: number[][],
     x: number,
     y: number,
@@ -92,40 +89,33 @@ export default class Epd2in7b extends EPD {
   ) {
     const [black, red] = channels;
     if (x == 0 && y == 0 && width == this.width && height == this.height) {
-      await this.displayFrame(black, red);
+      this.displayFrame(black, red);
     } else {
       throw "Partial Update is not enabled";
     }
   }
 
-  private async displayFrame(
-    black: Buffer | Array<number>,
-    red: Buffer | Array<number>
-  ) {
-    await this.writeCommand(Command.TCON_RESOLUTION);
-    await this.writeData(this.width >> 8);
-    await this.writeData(this.width & 0xff); //176
-    await this.writeData(this.height >> 8);
-    await this.writeData(this.height & 0xff); //264
+  private displayFrame(black: Array<number>, red: Array<number>) {
+    this.sendCommand(Command.TCON_RESOLUTION);
+    this.sendData(this.width >> 8);
+    this.sendData(this.width & 0xff); //176
+    this.sendData(this.height >> 8);
+    this.sendData(this.height & 0xff); //264
 
     if (black != null) {
-      await this.writeCommand(Command.DATA_START_TRANSMISSION_1);
-      await sleep(2);
-      for (var i = 0; i < black.length; i++) {
-        await this.writeData(black[i]);
-      }
-      await sleep(2);
+      this.sendCommand(Command.DATA_START_TRANSMISSION_1);
+      this.sleep(2);
+      this.sendDataArray(black);
+      this.sleep(2);
     }
     if (red != null) {
-      await this.writeCommand(Command.DATA_START_TRANSMISSION_1);
-      await sleep(2);
-      for (var i = 0; i < black.length; i++) {
-        await this.writeData(red[i]);
-      }
-      await sleep(2);
+      this.sendCommand(Command.DATA_START_TRANSMISSION_2);
+      this.sleep(2);
+      this.sendDataArray(red);
+      this.sleep(2);
     }
-    await this.writeCommand(Command.DISPLAY_REFRESH);
-    await this.whileBusy();
+    this.sendCommand(Command.DISPLAY_REFRESH);
+    this.waitUntilIdle();
   }
 }
 

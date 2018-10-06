@@ -152,15 +152,13 @@ class EPD:
     def delay_ms(self, delaytime):
         epdif.epd_delay_ms(delaytime)
 
-    def send_command(self, command):
-        print("writeCommand %s", command);
+    def send_command(self, command): 
         self.digital_write(self.dc_pin, GPIO.LOW)
         # the parameter type is list but not int
         # so use [command] instead of command
         epdif.spi_transfer([command])
 
     def send_data(self, data):
-        print("writeData %s", data);
         self.digital_write(self.dc_pin, GPIO.HIGH)
         # the parameter type is list but not int
         # so use [data] instead of data

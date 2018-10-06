@@ -3,15 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "engines": {
-    "node": "<= 8"
-  },
   "dependencies": {
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.11.3",
+    "@types/rpio": "0.0.2",
     "canvas": "^1.6.12",
     "lodash": "^4.17.11",
-    "rpi-gpio": "^1.0.0",
+    "rpio": "^0.9.23",
     "spi": "^0.2.0"
   },
   "devDependencies": {},

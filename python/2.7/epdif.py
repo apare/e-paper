@@ -42,6 +42,7 @@ EPD_HEIGHT      = 264
 SPI = spidev.SpiDev(0, 0)
 
 def epd_digital_write(pin, value):
+    print("epd_digital_write %d %d" % (pin, value));
     GPIO.output(pin, value)
 
 def epd_digital_read(pin):
